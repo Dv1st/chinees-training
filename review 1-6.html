@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Повторение слов: Уроки 1–6</title>
+<style>
+  :root {
+    --primary: #1d4ed8;
+    --primary-light: #dbeafe;
+    --bg: #eff6ff;
+    --card-bg: #ffffff;
+    --text: #1e3a8a;
+    --accent: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--text);
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+    overflow: hidden;
+    padding: 30px;
+  }
+  .header { text-align: center; margin-bottom: 30px; }
+  h1 { color: var(--primary); margin-bottom: 8px; font-size: 28px; font-weight: 800; }
+  .subtitle { color: #475569; font-size: 15px; }
+  
+  .progress-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 0;
+    background: #e2e8f0;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--primary);
+    margin-top: 8px;
+  }
+
+  /* Grid */
+  .char-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  /* Flashcard */
+  .flashcard {
+    background-color: transparent;
+    height: 180px;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+  }
+  .flashcard-front, .flashcard-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border: 3px solid #e2e8f0;
+  }
+  .flashcard-front {
+    background: var(--card-bg);
+    color: var(--primary);
+  }
+  .flashcard-back {
+    background: #f8fafc;
+    color: var(--text);
+    transform: rotateY(180deg);
+    border-color: var(--primary-light);
+    justify-content: flex-start;
+    padding-top: 20px;
+  }
+  
+  /* Динамический размер шрифта для слов */
+  .word-big { font-weight: 800; line-height: 1.2; text-align: center; padding: 0 5px; }
+  .len-2 { font-size: 42px; }
+  .len-3 { font-size: 34px; }
+  .len-4 { font-size: 26px; }
+  
+  .word-small { font-size: 32px; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
+  .py-text { font-size: 18px; color: #2563eb; font-weight: 600; margin-bottom: 5px; }
+  .trans-text { font-size: 15px; color: #475569; text-align: center; line-height: 1.3; }
+  
+  /* Checkbox */
+  .check-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #94a3b8;
+    transition: all 0.3s;
+    z-index: 10;
+  }
+  .check-btn:hover { background: #cbd5e1; }
+  .check-btn.checked {
+    background: var(--accent);
+    color: white;
+  }
+  .flashcard.learned .flashcard-front {
+    background: #fffbeb;
+    border-color: var(--accent);
+  }
+  .flashcard.learned .word-big { color: #d97706; }
+
+  @media (max-width: 600px) {
+    .container { padding: 15px; }
+    .char-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .len-2 { font-size: 32px; }
+    .len-3 { font-size: 26px; }
+    .len-4 { font-size: 20px; }
+    .word-small { font-size: 24px; }
+    .py-text { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Слова для повторения (Уроки 1–6)</h1>
+    <p class="subtitle">Нажмите на карточку, чтобы перевернуть. Отмечайте выученные!</p>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="progress-text" id="progress-text">Выучено: 0 / 30</div>
+  </div>
+
+  <div class="char-grid" id="grid"></div>
+</div>
+
+<script>
+// База слов из Уроков 1-6
+const reviewWords = [
+  // Урок 1
+  { word: "谢谢", pinyin: "xièxie", trans: "спасибо" },
+  { word: "不客气", pinyin: "bú kèqi", trans: "пожалуйста / не за что" },
+  { word: "再见", pinyin: "zàijiàn", trans: "до свидания" },
+  { word: "同学", pinyin: "tóngxué", trans: "однокурсник" },
+  // Урок 2
+  { word: "请问", pinyin: "qǐngwèn", trans: "извините / можно спросить" },
+  { word: "名字", pinyin: "míngzi", trans: "имя" },
+  { word: "认识", pinyin: "rènshi", trans: "знать / быть знакомым" },
+  { word: "高兴", pinyin: "gāoxìng", trans: "радостный" },
+  { word: "对不起", pinyin: "duìbuqǐ", trans: "извините" },
+  { word: "没关系", pinyin: "méi guānxi", trans: "ничего страшного" },
+  // Урок 3
+  { word: "女朋友", pinyin: "nǚpéngyou", trans: "девушка" },
+  { word: "姐姐", pinyin: "jiějie", trans: "старшая сестра" },
+  { word: "工作", pinyin: "gōngzuò", trans: "работа" },
+  // Урок 4
+  { word: "哥哥", pinyin: "gēge", trans: "старший брат" },
+  { word: "妹妹", pinyin: "mèimei", trans: "младшая сестра" },
+  { word: "孩子", pinyin: "háizi", trans: "ребёнок" },
+  { word: "女儿", pinyin: "nǚ'ér", trans: "дочь" },
+  { word: "儿子", pinyin: "érzi", trans: "сын" },
+  // Урок 5
+  { word: "休息", pinyin: "xiūxi", trans: "отдыхать" },
+  { word: "做饭", pinyin: "zuò fàn", trans: "готовить еду" },
+  { word: "饺子", pinyin: "jiǎozi", trans: "пельмени" },
+  { word: "面条", pinyin: "miàntiáo", trans: "лапша" },
+  { word: "电脑", pinyin: "diànnǎo", trans: "компьютер" },
+  { word: "喜欢", pinyin: "xǐhuan", trans: "нравиться" },
+  // Урок 6
+  { word: "手机", pinyin: "shǒujī", trans: "мобильный телефон" },
+  { word: "电话", pinyin: "diànhuà", trans: "телефон / звонок" },
+  { word: "超市", pinyin: "chāoshì", trans: "супермаркет" },
+  { word: "牛奶", pinyin: "niúnǎi", trans: "молоко" },
+  { word: "包子", pinyin: "bāozi", trans: "паровые пирожки" },
+  { word: "出租车", pinyin: "chūzūchē", trans: "такси" },
+  { word: "东西", pinyin: "dōngxi", trans: "вещи" }
+];
+
+let learnedCount = 0;
+const grid = document.getElementById('grid');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+
+// Перемешиваем карточки
+const shuffled = [...reviewWords].sort(() => Math.random() - 0.5);
+
+function updateProgress() {
+  const percent = (learnedCount / reviewWords.length) * 100;
+  progressBar.style.width = percent + '%';
+  progressText.innerText = `Выучено: ${learnedCount} / ${reviewWords.length}`;
+}
+
+shuffled.forEach((item, index) => {
+  const card = document.createElement('div');
+  card.className = 'flashcard';
+  card.id = `card-${index}`;
+
+  // Определяем длину слова для правильного размера шрифта
+  const wordLength = item.word.length;
+  const sizeClass = `len-${wordLength}`;
+
+  card.innerHTML = `
+    <div class="flashcard-inner">
+      <div class="flashcard-front">
+        <div class="word-big ${sizeClass}">${item.word}</div>
+        <button class="check-btn" onclick="toggleLearned(event, ${index})" title="Отметить как выученное">✓</button>
+      </div>
+      <div class="flashcard-back">
+        <div class="word-small">${item.word}</div>
+        <div class="py-text">${item.pinyin}</div>
+        <div class="trans-text">${item.trans}</div>
+      </div>
+    </div>
+  `;
+
+  // Клик по карточке переворачивает её
+  card.addEventListener('click', (e) => {
+    // Если кликнули на кнопку галочки, не переворачиваем
+    if (e.target.classList.contains('check-btn')) return;
+    card.classList.toggle('flipped');
+  });
+
+  grid.appendChild(card);
+});
+
+function toggleLearned(event, index) {
+  event.stopPropagation(); // Предотвращаем переворот карточки
+  const card = document.getElementById(`card-${index}`);
+  const btn = event.target;
+  
+  if (btn.classList.contains('checked')) {
+    btn.classList.remove('checked');
+    card.classList.remove('learned');
+    learnedCount--;
+  } else {
+    btn.classList.add('checked');
+    card.classList.add('learned');
+    learnedCount++;
+  }
+  updateProgress();
+}
+
+updateProgress();
+</script>
+</body>
+</html>
